@@ -5,7 +5,7 @@ class Field():
     pass
 
 
-class AdressBook(UserDict, Field):
+class AdressBook(UserDict):
     def add_record(self, rec):
         self.data[rec.name] = rec
 
@@ -24,12 +24,16 @@ class Phone(Field):
         self.phone = phone
 
 
-class Record(Field):
+class Record():
     def __init__(self, name: Name, phone: Phone = None):
         self.name = name
         self.phone = phone
-    # def change_phone(self, name, phone):
-    #     self.name
+
+    def change2_phone(self, phone):
+        self.phone = phone
+
+    def delete(self):
+        self.phone = '-'
 
 
 def input_error(func):
@@ -79,7 +83,7 @@ def new_contact(*args, **kwargs):
     return f"{name.name} {phone.phone} добавлен"
 
 
-@ input_error
+# @ input_error
 def change_phone(*args, **kwargs):
     information = args[0]
     name = Name(information[0])
@@ -87,18 +91,9 @@ def change_phone(*args, **kwargs):
     rec = Record(name, phone)
     for k, v in CONTACTS.items():
         if k.name == name.name:
-            CONTACTS[k] = rec
+            CONTACTS[k].change2_phone(phone)
             return "Номер изменен"
     return "Такого пользователя не найдено"
-
-    CONTACTS.change_number(rec)
-    # name = information[0]
-    # phone = information[1]
-    # if name in CONTACTS:
-    #     CONTACTS[name] = phone
-    #     return f"Номер для {name} изменен на {phone}"
-    # else:
-    #     return "Такого пользователя не найдено"
 
 
 @ input_error
@@ -108,7 +103,10 @@ def show_all(*args, **kwargs):
         return "Список пустой"
     else:
         for k, v in CONTACTS.items():
-            str_ += str(v.name.name) + " : " + str(v.phone.phone) + '\n'
+            try:
+                str_ += str(v.name.name) + " : " + str(v.phone.phone) + '\n'
+            except AttributeError:
+                str_ += str(v.name.name) + " : " + str(v.phone) + '\n'
         return str_[:-1]
 
 
@@ -118,7 +116,7 @@ def delete_contact(*args, **kwargs):
     name = Name(information[0])
     for k, v in CONTACTS.items():
         if k.name == name.name:
-            CONTACTS.pop(k)
+            CONTACTS[k].delete()
             return "Пользователь удален"
     return "Такого пользователя не найдено"
 
