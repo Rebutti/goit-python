@@ -35,7 +35,7 @@ class Record:
 
     def delete(self, phone) -> bool:
         for i, p in enumerate(self.phones):
-            if p.phone == phone.phone:
+            if str(p.phone) == str(phone.phone):
                 self.phones.pop(i)
                 # self.phones[i] = '-'
                 return True
@@ -95,6 +95,7 @@ CONTACTS = AddressBook()
 
 @ input_error
 def new_contact(*args, **kwargs):
+    print(args)
     information = args[0]
     name = Name(information[0])
     try:
@@ -102,8 +103,14 @@ def new_contact(*args, **kwargs):
     except:
         phone = Phone('-')
     rec = Record(name, phone)
+    # rec2 = Record(name, phone2)
     CONTACTS.add_record(rec)
-    return f"{name.name} {phone.phone} добавлен"
+    for i, p in enumerate(information):
+        if i == 0:
+            continue
+        phone = Phone(p)
+        CONTACTS[name.name].add_phone(phone)
+    return f"Пользователь {name.name} добавлен"
 
 
 @ input_error
@@ -112,7 +119,7 @@ def change_phone(*args, **kwargs):
     name = Name(information[0])
     phone = Phone(information[1])
     phone2 = Phone(information[2])
-    rec = Record(name, phone)
+    # rec = Record(name, phone)
     for k, v in CONTACTS.items():
         if k == name.name:
             CONTACTS[k].change2_phone(phone, phone2)
@@ -196,4 +203,5 @@ def main():
 
 
 if __name__ == "__main__":
+
     main()
