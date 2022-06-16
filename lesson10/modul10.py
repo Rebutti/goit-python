@@ -1,39 +1,62 @@
 from collections import UserDict
 
 
-class Field():
+class Field:
     pass
 
 
-class AdressBook(UserDict):
-    def add_record(self, rec):
-        self.data[rec.name] = rec
-
-
 class Name(Field):
-    name = ''
-
+    # name = ''
     def __init__(self, name) -> None:
         self.name = name
 
 
 class Phone(Field):
-    phone = ''
+    # phone = ''
 
     def __init__(self, phone=None) -> None:
         self.phone = phone
 
 
-class Record():
+class Record:
     def __init__(self, name: Name, phone: Phone = None):
         self.name = name
-        self.phone = phone
+        self.phones = []
+        if phone:
+            self.add_phone(phone)
 
-    def change2_phone(self, phone):
-        self.phone = phone
+    def change2_phone(self, phone: Phone, new_phone: Phone) -> bool:
+        for p in self.phones:
+            if phone.phone == p.phone:
+                self.delete(phone)
+                self.add_phone(new_phone)
+                return True
+            return False
 
-    def delete(self):
-        self.phone = '-'
+    def delete(self, phone) -> bool:
+        for i, p in enumerate(self.phones):
+            if p.phone == phone.phone:
+                self.phones.pop(i)
+                # self.phones[i] = '-'
+                return True
+        return False
+
+    def add_phone(self, phone) -> bool:
+        if phone.phone not in [p.phone for p in self.phones]:
+            self.phones.append(phone)
+            return True
+        return False
+
+    def phones_in_str(self):
+        str_ = ''
+        for p in self.phones:
+            str_ += str(p.phone)+' '
+        return str_[:-1]
+
+
+class AddressBook(UserDict):
+    def add_record(self, rec):
+        self.data[rec.name.name] = rec
 
 
 def input_error(func):
@@ -67,7 +90,7 @@ def greetings(*args, **kwargs):
 
 
 # CONTACTS = {}
-CONTACTS = AdressBook()
+CONTACTS = AddressBook()
 
 
 @ input_error
@@ -83,15 +106,16 @@ def new_contact(*args, **kwargs):
     return f"{name.name} {phone.phone} добавлен"
 
 
-# @ input_error
+@ input_error
 def change_phone(*args, **kwargs):
     information = args[0]
     name = Name(information[0])
     phone = Phone(information[1])
+    phone2 = Phone(information[2])
     rec = Record(name, phone)
     for k, v in CONTACTS.items():
-        if k.name == name.name:
-            CONTACTS[k].change2_phone(phone)
+        if k == name.name:
+            CONTACTS[k].change2_phone(phone, phone2)
             return "Номер изменен"
     return "Такого пользователя не найдено"
 
@@ -104,21 +128,26 @@ def show_all(*args, **kwargs):
     else:
         for k, v in CONTACTS.items():
             try:
-                str_ += str(v.name.name) + " : " + str(v.phone.phone) + '\n'
+                str2 = ''
+                for p in v.phones:
+                    str2 += p.phone + ' '
+                str_ += str(v.name.name) + " : " + \
+                    str(str2) + '\n'
             except AttributeError:
-                str_ += str(v.name.name) + " : " + str(v.phone) + '\n'
+                str_ += str(v.name.name) + " : " + str(v.phones) + '\n'
         return str_[:-1]
 
 
-@ input_error
+# @ input_error
 def delete_contact(*args, **kwargs):
     information = args[0]
     name = Name(information[0])
+    phone = Phone(information[1])
     for k, v in CONTACTS.items():
-        if k.name == name.name:
-            CONTACTS[k].delete()
-            return "Пользователь удален"
-    return "Такого пользователя не найдено"
+        if k == name.name:
+            CONTACTS[k].delete(phone)
+            return "Номер удален"
+    return "Такого пользователя или номера не найдено"
 
 
 @ input_error
@@ -129,8 +158,8 @@ def show_phone(*args, **kwargs):
         return "Список пустой"
     else:
         for k, v in CONTACTS.items():
-            if k.name == information[0]:
-                return f"Номер {k.name} : {CONTACTS[k].phone.phone}"
+            if k == information[0]:
+                return f"Номерa {k} : {CONTACTS[k].phones_in_str()}"
         return "Такого контакта не найдено"
 
 
@@ -141,8 +170,6 @@ COMMANDS = {
     'change': change_phone,
     'phone': show_phone,
     'delete': delete_contact,
-
-
 }
 
 
