@@ -3,6 +3,9 @@ from collections import UserDict
 from datetime import datetime
 from datetime import date
 from itertools import islice
+"""
+Для просмотра n-го количества в списке напишите комманду show n, где n - нужное количество контактов для вывода
+"""
 
 
 def input_error(func):
