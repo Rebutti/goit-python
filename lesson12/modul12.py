@@ -6,6 +6,11 @@ from itertools import islice
 from os import stat
 import shelve
 
+"""
+поиск происходит на совпадения происходит командой find a, где а - строка по которой нужно найти совпадения
+сохранение книги происходит после завершения работы программы, загрузка - при запуске программы
+"""
+
 
 def input_error(func):
     def inner(*args, **kwargs):
