@@ -6,11 +6,6 @@ from itertools import islice
 from os import stat
 import shelve
 
-"""
-поиск происходит на совпадения происходит командой find a, где а - строка по которой нужно найти совпадения
-сохранение книги происходит после завершения работы программы, загрузка - при запуске программы
-"""
-
 
 def input_error(func):
     def inner(*args, **kwargs):
@@ -135,6 +130,31 @@ class Record:
 
 class AddressBook(UserDict):
     current_amount = 0
+    filename = 'contacts'
+    save_str = ''
+
+    def write(self):
+        # запись
+        with shelve.open(self.filename) as states:
+            for k, v in self.data.items():
+                print(k)
+                self.save_str += k + ','
+                for p in v.phones:
+                    self.save_str += p.value + ','
+                try:
+                    self.save_str += v.birthday.value.strftime('%d/%m/%Y')+','
+                except:
+                    self.save_str += ''
+                states[k] = self.save_str[:-1]
+                self.save_str = ''
+
+    def read(self):
+        # чтение
+        with shelve.open(self.filename) as states:
+            for key in states:
+                value = states[key].split(',')
+                # value = (value,)
+                new_contact(value)
 
     def add_record(self, rec):
         self.data[rec.name.value] = rec
@@ -308,24 +328,10 @@ def open_and_save_file(flag=0):
     save_str = ''
     if(flag == 1):
         # запись
-        with shelve.open(filename) as states:
-            for k, v in CONTACTS.items():
-                save_str += v.name.value + ','
-                for p in v.phones:
-                    save_str += p.value + ','
-                try:
-                    save_str += v.birthday.value.strftime('%d/%m/%Y')+','
-                except:
-                    save_str += ''
-                states[k] = save_str[:-1]
-                save_str = ''
+        CONTACTS.write()
     else:
         # чтение
-        with shelve.open(filename) as states:
-            for key in states:
-                value = states[key].split(',')
-                # value = (value,)
-                new_contact(value)
+        CONTACTS.read()
 
 
 def find(*args, **kwargs):
